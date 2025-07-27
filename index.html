@@ -356,6 +356,34 @@
             color: #000;
         }
 
+        /* Notifications élégantes */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            max-width: 300px;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        .notification.info {
+            background: #2196F3;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -1413,6 +1441,40 @@
             }
         }
 
+        // Fonction pour afficher les notifications
+        function showNotification(message, type = 'success') {
+            // Supprimer les anciennes notifications
+            const existingNotifications = document.querySelectorAll('.notification');
+            existingNotifications.forEach(notification => notification.remove());
+            
+            // Créer la nouvelle notification
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 18px;">
+                        ${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}
+                    </span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Afficher la notification
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Masquer automatiquement après 3 secondes
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            }, 3000);
+        }
+
 
 
         // Interface d'administration
@@ -1608,7 +1670,7 @@
             const couleur = document.getElementById('newThematiqueCouleur').value;
 
             if (!nom || !description) {
-                alert('Veuillez remplir tous les champs');
+                showNotification('Veuillez remplir tous les champs', 'error');
                 return;
             }
 
@@ -1623,7 +1685,7 @@
             thematiques.push(newThematique);
             saveToLocalStorage(); // Sauvegarde automatique
             displayAdminThematiques();
-            alert('✅ Thématique ajoutée et sauvegardée !');
+            showNotification('Thématique ajoutée et sauvegardée !', 'success');
         }
 
         function editThematique(index) {
@@ -1697,7 +1759,7 @@
             const couleur = document.getElementById('editThematiqueCouleur').value;
 
             if (!nom || !description) {
-                alert('Veuillez remplir tous les champs');
+                showNotification('Veuillez remplir tous les champs', 'error');
                 return;
             }
 
@@ -1707,7 +1769,7 @@
 
             saveToLocalStorage(); // Sauvegarde automatique
             displayAdminThematiques();
-            alert('✅ Thématique modifiée et sauvegardée !');
+            showNotification('Thématique modifiée et sauvegardée !', 'success');
         }
 
         function deleteThematique(index) {
@@ -1715,7 +1777,7 @@
                 thematiques.splice(index, 1);
                 saveToLocalStorage(); // Sauvegarde automatique
                 displayAdminThematiques();
-                alert('✅ Thématique supprimée et sauvegardée !');
+                showNotification('Thématique supprimée et sauvegardée !', 'success');
             }
         }
 
@@ -1764,7 +1826,7 @@
             const contenu = document.getElementById('newCarteContenu').value;
 
             if (!titre || !description || !contenu) {
-                alert('Veuillez remplir tous les champs obligatoires');
+                showNotification('Veuillez remplir tous les champs obligatoires', 'error');
                 return;
             }
 
@@ -1782,7 +1844,7 @@
             thematiques[thematiqueIndex].spots.push(newCarte);
             saveToLocalStorage(); // Sauvegarde automatique
             displayAdminCartes();
-            alert('✅ Carte ajoutée et sauvegardée !');
+            showNotification('Carte ajoutée et sauvegardée !', 'success');
         }
 
         function editCarte(thematiqueIndex, carteIndex) {
@@ -1824,7 +1886,7 @@
             const contenu = document.getElementById('editCarteContenu').value;
 
             if (!titre || !description || !contenu) {
-                alert('Veuillez remplir tous les champs obligatoires');
+                showNotification('Veuillez remplir tous les champs obligatoires', 'error');
                 return;
             }
 
@@ -1840,7 +1902,7 @@
 
             saveToLocalStorage(); // Sauvegarde automatique
             displayAdminCartes();
-            alert('✅ Carte modifiée et sauvegardée !');
+            showNotification('Carte modifiée et sauvegardée !', 'success');
         }
 
         function deleteCarte(thematiqueIndex, carteIndex) {
@@ -1848,7 +1910,7 @@
                 thematiques[thematiqueIndex].spots.splice(carteIndex, 1);
                 saveToLocalStorage(); // Sauvegarde automatique
                 displayAdminCartes();
-                alert('✅ Carte supprimée et sauvegardée !');
+                showNotification('Carte supprimée et sauvegardée !', 'success');
             }
         }
 
