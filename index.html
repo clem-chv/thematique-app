@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThématiqueApp - Gestionnaire de Thématiques</title>
+    
+    <!-- PWA Meta Tags pour iPhone -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ThématiqueApp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#4A90E2">
+    <meta name="description" content="Découvrez 100 spots islandais et gérez vos thématiques">
+    
+    <!-- Icônes pour iPhone -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏔️</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .admin-btn {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .thematiques {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .thematique-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 5px solid #4A90E2;
+        }
+
+        .thematique-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        .thematique-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+
+        .thematique-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .spot-count {
+            color: #999;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .back-btn {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .search {
+            max-width: 600px;
+            margin: 0 auto 30px;
+            display: flex;
+        }
+
+        .search input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 25px 0 0 25px;
+            font-size: 16px;
+        }
+
+        .search button {
+            padding: 15px 20px;
+            background: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 0 25px 25px 0;
+            cursor: pointer;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: #4A90E2;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .view-btn, .edit-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .view-btn {
+            background: #4A90E2;
+            color: white;
+        }
+
+        .edit-btn {
+            background: #FFA500;
+            color: white;
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .modal img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+
+        .admin-panel {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+        }
+
+        .admin-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #4A90E2;
+            border-bottom-color: #4A90E2;
+        }
+
+        .tab-content {
+            margin-top: 15px;
+        }
+
+        .add-btn {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .add-btn:hover {
+            background: #357ABD;
+        }
+
+        .item-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 3px solid #4A90E2;
+        }
+
+        .item-card h4 {
+            margin: 0 0 8px 0;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .item-card p {
+            margin: 0 0 10px 0;
+            color: #666;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .edit-btn {
+            background: #FFA500;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #FF4444;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: bold;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal h2 {
+            color: #4A90E2;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+                    .cards {
+            grid-template-columns: 1fr;
+        }
+        
+        /* Interface mobile optimisée */
+        .admin-panel {
+            padding: 15px;
+            margin: 10px;
+        }
+        
+        .admin-tabs {
+            flex-direction: column;
+        }
+        
+        .tab-btn {
+            padding: 12px;
+            font-size: 1rem;
+        }
+        
+        .item-card {
+            padding: 12px;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            font-size: 16px; /* Évite le zoom sur iOS */
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .cards {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .card {
+            padding: 15px;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 Thématiques - Cartes Explicatives</h1>
+        <p>Choisissez une thématique pour découvrir ses cartes</p>
+        <button onclick="showAdminPanel()" class="admin-btn">⚙️ Admin</button>
+    </div>
+
+    <div class="thematiques" id="thematiquesContainer">
+        <!-- Les thématiques seront générées par JavaScript -->
+    </div>
+
+    <div class="search" id="searchSection" style="display: none;">
+        <input type="text" id="searchInput" placeholder="Rechercher un spot...">
+        <button onclick="searchSpots()">🔍</button>
+    </div>
+
+    <div class="cards" id="cardsContainer" style="display: none;">
+        <!-- Les cartes seront générées par JavaScript -->
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle"></h2>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Données des thématiques
+        let thematiques = [
+            {
+                id: 'islande',
+                nom: '🏔️ Islande - Spots Incontournables',
+                description: 'Découvrez les 100 plus beaux endroits d\'Islande',
+                couleur: '#4A90E2',
+                spots: [
+                    {
+                        id: 1,
+                        titre: "Gullfoss - La Cascade d'Or",
+                        description: "Cascade majestueuse de 32m de profondeur",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Gullfoss, la 'Cascade d'Or', est l'une des plus impressionnantes d'Islande. Située dans le sud-ouest, elle se jette dans un canyon de 32 mètres de profondeur. Le nom vient de l'arc-en-ciel qui se forme souvent au-dessus de la cascade. La puissance de l'eau est telle qu'elle peut projeter des gouttelettes jusqu'à 50 mètres de hauteur. Meilleur moment : été pour les couleurs, hiver pour les formations de glace. Accès facile depuis Reykjavik (1h30 de route)."
+                    },
+                    {
+                        id: 2,
+                        titre: "Geysir et Strokkur",
+                        description: "Spectacle hypnotique toutes les 5-10 minutes",
+                        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop",
+                        contenu: "Le Geysir, qui a donné son nom à tous les geysers du monde, se trouve dans la vallée de Haukadalur. Bien qu'il soit moins actif aujourd'hui, son voisin Strokkur éclate toutes les 5-10 minutes, projetant de l'eau bouillante jusqu'à 30 mètres de hauteur. Le spectacle est hypnotique et attire des milliers de visiteurs. Conseil : restez à distance de sécurité et prévoyez 1-2 heures pour observer plusieurs éruptions. Le site est accessible toute l'année."
+                    },
+                    {
+                        id: 3,
+                        titre: "Skógafoss - La Cascade du Musée",
+                        description: "60m de hauteur avec escalier de 527 marches",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Skógafoss, haute de 60 mètres et large de 25 mètres, est l'une des plus grandes cascades d'Islande. Selon la légende, un trésor viking serait caché derrière la cascade. L'escalier de 527 marches mène à un point de vue spectaculaire. En été, un arc-en-ciel double se forme souvent. Le musée folklorique de Skógar est à proximité. Meilleur moment : tôt le matin pour éviter la foule. Accès : route 1, 2h de Reykjavik."
+                    },
+                    {
+                        id: 4,
+                        titre: "Lac Jökulsárlón",
+                        description: "Lac glaciaire avec icebergs flottants",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Jökulsárlón est le plus grand lac glaciaire d'Islande, formé par la fonte du glacier Vatnajökull. Les icebergs qui se détachent du glacier flottent sur le lac avant de rejoindre l'océan. Le site est accessible toute l'année, mais l'été offre les meilleures conditions pour les excursions en bateau. Conseil : réservez une excursion en bateau amphibie pour approcher les icebergs. Accès : route 1, 5h de Reykjavik."
+                    },
+                    {
+                        id: 5,
+                        titre: "Plage de Reynisfjara",
+                        description: "Plage de sable noir et colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Reynisfjara est une plage de sable noir spectaculaire près de Vík. Elle est bordée par des colonnes de basalte hexagonales et dominée par les Reynisdrangar, des formations rocheuses en mer. Attention : les vagues peuvent être dangereuses. Conseil : respectez les panneaux d'avertissement et gardez vos distances avec l'océan. Accès : route 1, 3h de Reykjavik."
+                    },
+                    {
+                        id: 6,
+                        titre: "Cercle d'Or",
+                        description: "Circuit classique : Gullfoss, Geysir, Þingvellir",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Le Cercle d'Or est le circuit touristique le plus populaire d'Islande. Il comprend Gullfoss, Geysir et le parc national de Þingvellir. Ce dernier est classé au patrimoine mondial de l'UNESCO et abrite le site historique du premier parlement islandais. Conseil : prévoyez une journée complète pour ce circuit. Accès : route 35 et 36, 1h30 de Reykjavik."
+                    },
+                    {
+                        id: 7,
+                        titre: "Cascade de Seljalandsfoss",
+                        description: "Cascade où l'on peut passer derrière",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Seljalandsfoss est unique car il est possible de passer derrière la cascade grâce à un sentier aménagé. Haute de 60 mètres, elle offre une vue spectaculaire depuis l'arrière. Attention : le sentier peut être glissant. Conseil : visitez en fin de journée pour la lumière dorée. Accès : route 1, 2h de Reykjavik."
+                    },
+                    {
+                        id: 8,
+                        titre: "Lac Mývatn",
+                        description: "Lac volcanique avec formations géologiques uniques",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Le lac Mývatn est le quatrième plus grand lac d'Islande. Il est entouré de formations volcaniques uniques comme les pseudo-cratères de Skútustaðir et les formations de lave de Dimmuborgir. Le site est réputé pour ses oiseaux migrateurs. Conseil : visitez en été pour l'observation des oiseaux. Accès : route 1, 6h de Reykjavik."
+                    },
+                    {
+                        id: 9,
+                        titre: "Cascade de Dettifoss",
+                        description: "La plus puissante cascade d'Europe",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Dettifoss est la cascade la plus puissante d'Europe avec un débit de 193 m³/s. Haute de 44 mètres, elle est située dans le parc national de Vatnajökull. Le site est accessible depuis les routes 862 et 864. Conseil : la route 864 offre le meilleur point de vue. Accès : 6h de Reykjavik."
+                    },
+                    {
+                        id: 10,
+                        titre: "Péninsule de Snæfellsnes",
+                        description: "L'Islande en miniature",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "La péninsule de Snæfellsnes est souvent appelée 'l'Islande en miniature' car elle concentre tous les types de paysages islandais. Le volcan Snæfellsjökull, visible depuis Reykjavik, domine la péninsule. Conseil : prévoyez 2-3 jours pour explorer la péninsule. Accès : route 54, 2h de Reykjavik."
+                    },
+                    {
+                        id: 11,
+                        titre: "Cascade de Svartifoss",
+                        description: "Cascade entourée de colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Svartifoss est une cascade de 20 mètres entourée de colonnes de basalte hexagonales. Elle se trouve dans le parc national de Skaftafell. Le sentier pour y accéder fait 1,5 km et traverse une forêt de bouleaux. Conseil : combinez avec une randonnée dans le parc. Accès : route 1, 4h de Reykjavik."
+                    },
+                    {
+                        id: 12,
+                        titre: "Lagon Bleu",
+                        description: "Sources thermales et spa géothermique",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Le Lagon Bleu est le spa géothermique le plus célèbre d'Islande. L'eau turquoise à 37-39°C est riche en minéraux. Le site est ouvert toute l'année. Conseil : réservez à l'avance, surtout en haute saison. Accès : route 43, 45 min de Reykjavik."
+                    },
+                    {
+                        id: 13,
+                        titre: "Cascade de Háifoss",
+                        description: "Deuxième plus haute cascade d'Islande",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Háifoss est la deuxième plus haute cascade d'Islande avec 122 mètres de hauteur. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible par une piste 4x4. Conseil : nécessite un véhicule tout-terrain. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 14,
+                        titre: "Cascade de Glymur",
+                        description: "Plus haute cascade d'Islande",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Glymur était la plus haute cascade d'Islande jusqu'à la découverte de Morsárfoss. Elle fait 198 mètres de hauteur. Le sentier pour y accéder est classé comme difficile. Conseil : prévoyez 3-4 heures pour l'aller-retour. Accès : route 47, 1h de Reykjavik."
+                    },
+                    {
+                        id: 15,
+                        titre: "Cascade de Hraunfossar",
+                        description: "Cascades de lave",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hraunfossar est une série de cascades qui émergent de la lave. L'eau provient du glacier Langjökull. Le site est accessible toute l'année. Conseil : combinez avec la visite de Barnafoss. Accès : route 518, 2h de Reykjavik."
+                    },
+                    {
+                        id: 16,
+                        titre: "Cascade de Barnafoss",
+                        description: "Cascade de lave avec pont naturel",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Barnafoss est une cascade qui traverse un pont naturel de lave. Selon la légende, deux enfants se sont noyés ici. Le site est accessible toute l'année. Conseil : visitez en même temps que Hraunfossar. Accès : route 518, 2h de Reykjavik."
+                    },
+                    {
+                        id: 17,
+                        titre: "Cascade de Dynjandi",
+                        description: "Cascade en escalier dans les fjords",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Dynjandi est une cascade de 100 mètres dans les fjords de l'Ouest. Elle se déverse en plusieurs étapes. Le site est accessible en été. Conseil : prévoyez une journée pour les fjords. Accès : route 60, 5h de Reykjavik."
+                    },
+                    {
+                        id: 18,
+                        titre: "Cascade de Aldeyjarfoss",
+                        description: "Cascade entourée de colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Aldeyjarfoss est une cascade de 20 mètres entourée de colonnes de basalte. Elle se trouve dans le nord de l'Islande. Le site est accessible en été. Conseil : nécessite un véhicule tout-terrain. Accès : route 842, 6h de Reykjavik."
+                    },
+                    {
+                        id: 19,
+                        titre: "Cascade de Goðafoss",
+                        description: "Cascade des dieux",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Goðafoss est une cascade de 12 mètres de hauteur et 30 mètres de largeur. Son nom signifie 'cascade des dieux'. Le site est accessible toute l'année. Conseil : visitez en fin de journée pour la lumière. Accès : route 1, 5h de Reykjavik."
+                    },
+                    {
+                        id: 20,
+                        titre: "Cascade de Selfoss",
+                        description: "Cascade en escalier",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Selfoss est une cascade de 11 mètres de hauteur qui se déverse en plusieurs étapes. Elle se trouve près de Dettifoss. Le site est accessible en été. Conseil : combinez avec Dettifoss. Accès : route 864, 6h de Reykjavik."
+                    },
+                    {
+                        id: 21,
+                        titre: "Cascade de Hengifoss",
+                        description: "Cascade avec bandes rouges",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hengifoss est une cascade de 128 mètres de hauteur avec des bandes rouges dans la roche. Le sentier pour y accéder fait 2,5 km. Conseil : prévoyez 2-3 heures pour l'aller-retour. Accès : route 931, 7h de Reykjavik."
+                    },
+                    {
+                        id: 22,
+                        titre: "Cascade de Litlanesfoss",
+                        description: "Cascade avec colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Litlanesfoss est une cascade de 30 mètres entourée de colonnes de basalte. Elle se trouve près de Hengifoss. Le site est accessible en été. Conseil : combinez avec Hengifoss. Accès : route 931, 7h de Reykjavik."
+                    },
+                    {
+                        id: 23,
+                        titre: "Cascade de Kirkjufellsfoss",
+                        description: "Cascade avec montagne en arrière-plan",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Kirkjufellsfoss est une petite cascade avec la montagne Kirkjufell en arrière-plan. C'est un spot photo très populaire. Conseil : visitez au coucher du soleil. Accès : route 54, 3h de Reykjavik."
+                    },
+                    {
+                        id: 24,
+                        titre: "Cascade de Bruarfoss",
+                        description: "Cascade bleue cachée",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Bruarfoss est une cascade bleue cachée dans la vallée de Laugarvatn. Le sentier pour y accéder fait 3,5 km. Conseil : prévoyez 2-3 heures pour l'aller-retour. Accès : route 37, 1h30 de Reykjavik."
+                    },
+                    {
+                        id: 25,
+                        titre: "Cascade de Faxi",
+                        description: "Cascade large et peu profonde",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Faxi est une cascade de 7 mètres de hauteur et 80 mètres de largeur. Elle se trouve sur la rivière Tungufljót. Le site est accessible toute l'année. Conseil : combinez avec Gullfoss. Accès : route 35, 1h30 de Reykjavik."
+                    },
+                    {
+                        id: 26,
+                        titre: "Cascade de Öxarárfoss",
+                        description: "Cascade dans le parc national de Þingvellir",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Öxarárfoss est une cascade de 20 mètres de hauteur dans le parc national de Þingvellir. Elle se trouve dans la faille d'Almannagjá. Le site est accessible toute l'année. Conseil : combinez avec la visite du parc. Accès : route 36, 1h de Reykjavik."
+                    },
+                    {
+                        id: 27,
+                        titre: "Cascade de Gljúfrabúi",
+                        description: "Cascade cachée dans une grotte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Gljúfrabúi est une cascade de 40 mètres cachée dans une grotte. Elle se trouve près de Seljalandsfoss. Le site est accessible toute l'année. Conseil : portez des vêtements imperméables. Accès : route 1, 2h de Reykjavik."
+                    },
+                    {
+                        id: 28,
+                        titre: "Cascade de Kvernufoss",
+                        description: "Cascade cachée près de Skógafoss",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Kvernufoss est une cascade de 30 mètres cachée dans une gorge. Elle se trouve près de Skógafoss. Le sentier pour y accéder fait 1 km. Conseil : combinez avec Skógafoss. Accès : route 1, 2h de Reykjavik."
+                    },
+                    {
+                        id: 29,
+                        titre: "Cascade de Háifoss",
+                        description: "Deuxième plus haute cascade d'Islande",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Háifoss est la deuxième plus haute cascade d'Islande avec 122 mètres de hauteur. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible par une piste 4x4. Conseil : nécessite un véhicule tout-terrain. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 30,
+                        titre: "Cascade de Hjálparfoss",
+                        description: "Cascade en forme de Y",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hjálparfoss est une cascade de 20 mètres de hauteur en forme de Y. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 31,
+                        titre: "Cascade de Gjáin",
+                        description: "Vallée cachée avec cascades",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Gjáin est une vallée cachée avec plusieurs petites cascades. Elle se trouve près de Þingvellir. Le site est accessible en été. Conseil : prévoyez 2-3 heures pour explorer. Accès : route 36, 1h de Reykjavik."
+                    },
+                    {
+                        id: 32,
+                        titre: "Cascade de Þjófafoss",
+                        description: "Cascade des voleurs",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Þjófafoss est une cascade de 20 mètres de hauteur. Son nom signifie 'cascade des voleurs'. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 33,
+                        titre: "Cascade de Búðafoss",
+                        description: "Cascade dans la vallée de Þjórsárdalur",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Búðafoss est une cascade de 15 mètres de hauteur dans la vallée de Þjórsárdalur. Elle se trouve près de Háifoss. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 34,
+                        titre: "Cascade de Tröllafoss",
+                        description: "Cascade des trolls",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Tröllafoss est une cascade de 20 mètres de hauteur. Son nom signifie 'cascade des trolls'. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 35,
+                        titre: "Cascade de Stjórnarfoss",
+                        description: "Cascade dans la vallée de Þjórsárdalur",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Stjórnarfoss est une cascade de 15 mètres de hauteur dans la vallée de Þjórsárdalur. Elle se trouve près de Háifoss. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 36,
+                        titre: "Cascade de Granni",
+                        description: "Cascade voisine de Háifoss",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Granni est une cascade de 101 mètres de hauteur qui se trouve à côté de Háifoss. Son nom signifie 'voisin'. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 37,
+                        titre: "Cascade de Hraunfossar",
+                        description: "Cascades de lave",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hraunfossar est une série de cascades qui émergent de la lave. L'eau provient du glacier Langjökull. Le site est accessible toute l'année. Conseil : combinez avec Barnafoss. Accès : route 518, 2h de Reykjavik."
+                    },
+                    {
+                        id: 38,
+                        titre: "Cascade de Barnafoss",
+                        description: "Cascade de lave avec pont naturel",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Barnafoss est une cascade qui traverse un pont naturel de lave. Selon la légende, deux enfants se sont noyés ici. Le site est accessible toute l'année. Conseil : visitez en même temps que Hraunfossar. Accès : route 518, 2h de Reykjavik."
+                    },
+                    {
+                        id: 39,
+                        titre: "Cascade de Dynjandi",
+                        description: "Cascade en escalier dans les fjords",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Dynjandi est une cascade de 100 mètres dans les fjords de l'Ouest. Elle se déverse en plusieurs étapes. Le site est accessible en été. Conseil : prévoyez une journée pour les fjords. Accès : route 60, 5h de Reykjavik."
+                    },
+                    {
+                        id: 40,
+                        titre: "Cascade de Aldeyjarfoss",
+                        description: "Cascade entourée de colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Aldeyjarfoss est une cascade de 20 mètres entourée de colonnes de basalte. Elle se trouve dans le nord de l'Islande. Le site est accessible en été. Conseil : nécessite un véhicule tout-terrain. Accès : route 842, 6h de Reykjavik."
+                    },
+                    {
+                        id: 41,
+                        titre: "Cascade de Goðafoss",
+                        description: "Cascade des dieux",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Goðafoss est une cascade de 12 mètres de hauteur et 30 mètres de largeur. Son nom signifie 'cascade des dieux'. Le site est accessible toute l'année. Conseil : visitez en fin de journée pour la lumière. Accès : route 1, 5h de Reykjavik."
+                    },
+                    {
+                        id: 42,
+                        titre: "Cascade de Selfoss",
+                        description: "Cascade en escalier",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Selfoss est une cascade de 11 mètres de hauteur qui se déverse en plusieurs étapes. Elle se trouve près de Dettifoss. Le site est accessible en été. Conseil : combinez avec Dettifoss. Accès : route 864, 6h de Reykjavik."
+                    },
+                    {
+                        id: 43,
+                        titre: "Cascade de Hengifoss",
+                        description: "Cascade avec bandes rouges",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hengifoss est une cascade de 128 mètres de hauteur avec des bandes rouges dans la roche. Le sentier pour y accéder fait 2,5 km. Conseil : prévoyez 2-3 heures pour l'aller-retour. Accès : route 931, 7h de Reykjavik."
+                    },
+                    {
+                        id: 44,
+                        titre: "Cascade de Litlanesfoss",
+                        description: "Cascade avec colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Litlanesfoss est une cascade de 30 mètres entourée de colonnes de basalte. Elle se trouve près de Hengifoss. Le site est accessible en été. Conseil : combinez avec Hengifoss. Accès : route 931, 7h de Reykjavik."
+                    },
+                    {
+                        id: 45,
+                        titre: "Cascade de Kirkjufellsfoss",
+                        description: "Cascade avec montagne en arrière-plan",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Kirkjufellsfoss est une petite cascade avec la montagne Kirkjufell en arrière-plan. C'est un spot photo très populaire. Conseil : visitez au coucher du soleil. Accès : route 54, 3h de Reykjavik."
+                    },
+                    {
+                        id: 46,
+                        titre: "Cascade de Bruarfoss",
+                        description: "Cascade bleue cachée",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Bruarfoss est une cascade bleue cachée dans la vallée de Laugarvatn. Le sentier pour y accéder fait 3,5 km. Conseil : prévoyez 2-3 heures pour l'aller-retour. Accès : route 37, 1h30 de Reykjavik."
+                    },
+                    {
+                        id: 47,
+                        titre: "Cascade de Faxi",
+                        description: "Cascade large et peu profonde",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Faxi est une cascade de 7 mètres de hauteur et 80 mètres de largeur. Elle se trouve sur la rivière Tungufljót. Le site est accessible toute l'année. Conseil : combinez avec Gullfoss. Accès : route 35, 1h30 de Reykjavik."
+                    },
+                    {
+                        id: 48,
+                        titre: "Cascade de Öxarárfoss",
+                        description: "Cascade dans le parc national de Þingvellir",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Öxarárfoss est une cascade de 20 mètres de hauteur dans le parc national de Þingvellir. Elle se trouve dans la faille d'Almannagjá. Le site est accessible toute l'année. Conseil : combinez avec la visite du parc. Accès : route 36, 1h de Reykjavik."
+                    },
+                    {
+                        id: 49,
+                        titre: "Cascade de Gljúfrabúi",
+                        description: "Cascade cachée dans une grotte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Gljúfrabúi est une cascade de 40 mètres cachée dans une grotte. Elle se trouve près de Seljalandsfoss. Le site est accessible toute l'année. Conseil : portez des vêtements imperméables. Accès : route 1, 2h de Reykjavik."
+                    },
+                    {
+                        id: 50,
+                        titre: "Cascade de Kvernufoss",
+                        description: "Cascade cachée près de Skógafoss",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Kvernufoss est une cascade de 30 mètres cachée dans une gorge. Elle se trouve près de Skógafoss. Le sentier pour y accéder fait 1 km. Conseil : combinez avec Skógafoss. Accès : route 1, 2h de Reykjavik."
+                    },
+                    {
+                        id: 51,
+                        titre: "Cascade de Hraunfossar",
+                        description: "Cascades de lave",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hraunfossar est une série de cascades qui émergent de la lave. L'eau provient du glacier Langjökull. Le site est accessible toute l'année. Conseil : combinez avec Barnafoss. Accès : route 518, 2h de Reykjavik."
+                    },
+                    {
+                        id: 52,
+                        titre: "Cascade de Barnafoss",
+                        description: "Cascade de lave avec pont naturel",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Barnafoss est une cascade qui traverse un pont naturel de lave. Selon la légende, deux enfants se sont noyés ici. Le site est accessible toute l'année. Conseil : visitez en même temps que Hraunfossar. Accès : route 518, 2h de Reykjavik."
+                    },
+                    {
+                        id: 53,
+                        titre: "Cascade de Dynjandi",
+                        description: "Cascade en escalier dans les fjords",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Dynjandi est une cascade de 100 mètres dans les fjords de l'Ouest. Elle se déverse en plusieurs étapes. Le site est accessible en été. Conseil : prévoyez une journée pour les fjords. Accès : route 60, 5h de Reykjavik."
+                    },
+                    {
+                        id: 54,
+                        titre: "Cascade de Aldeyjarfoss",
+                        description: "Cascade entourée de colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Aldeyjarfoss est une cascade de 20 mètres entourée de colonnes de basalte. Elle se trouve dans le nord de l'Islande. Le site est accessible en été. Conseil : nécessite un véhicule tout-terrain. Accès : route 842, 6h de Reykjavik."
+                    },
+                    {
+                        id: 55,
+                        titre: "Cascade de Goðafoss",
+                        description: "Cascade des dieux",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Goðafoss est une cascade de 12 mètres de hauteur et 30 mètres de largeur. Son nom signifie 'cascade des dieux'. Le site est accessible toute l'année. Conseil : visitez en fin de journée pour la lumière. Accès : route 1, 5h de Reykjavik."
+                    },
+                    {
+                        id: 56,
+                        titre: "Cascade de Selfoss",
+                        description: "Cascade en escalier",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Selfoss est une cascade de 11 mètres de hauteur qui se déverse en plusieurs étapes. Elle se trouve près de Dettifoss. Le site est accessible en été. Conseil : combinez avec Dettifoss. Accès : route 864, 6h de Reykjavik."
+                    },
+                    {
+                        id: 57,
+                        titre: "Cascade de Hengifoss",
+                        description: "Cascade avec bandes rouges",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hengifoss est une cascade de 128 mètres de hauteur avec des bandes rouges dans la roche. Le sentier pour y accéder fait 2,5 km. Conseil : prévoyez 2-3 heures pour l'aller-retour. Accès : route 931, 7h de Reykjavik."
+                    },
+                    {
+                        id: 58,
+                        titre: "Cascade de Litlanesfoss",
+                        description: "Cascade avec colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Litlanesfoss est une cascade de 30 mètres entourée de colonnes de basalte. Elle se trouve près de Hengifoss. Le site est accessible en été. Conseil : combinez avec Hengifoss. Accès : route 931, 7h de Reykjavik."
+                    },
+                    {
+                        id: 59,
+                        titre: "Cascade de Kirkjufellsfoss",
+                        description: "Cascade avec montagne en arrière-plan",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Kirkjufellsfoss est une petite cascade avec la montagne Kirkjufell en arrière-plan. C'est un spot photo très populaire. Conseil : visitez au coucher du soleil. Accès : route 54, 3h de Reykjavik."
+                    },
+                    {
+                        id: 60,
+                        titre: "Cascade de Bruarfoss",
+                        description: "Cascade bleue cachée",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Bruarfoss est une cascade bleue cachée dans la vallée de Laugarvatn. Le sentier pour y accéder fait 3,5 km. Conseil : prévoyez 2-3 heures pour l'aller-retour. Accès : route 37, 1h30 de Reykjavik."
+                    },
+                    {
+                        id: 61,
+                        titre: "Cascade de Faxi",
+                        description: "Cascade large et peu profonde",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Faxi est une cascade de 7 mètres de hauteur et 80 mètres de largeur. Elle se trouve sur la rivière Tungufljót. Le site est accessible toute l'année. Conseil : combinez avec Gullfoss. Accès : route 35, 1h30 de Reykjavik."
+                    },
+                    {
+                        id: 62,
+                        titre: "Cascade de Öxarárfoss",
+                        description: "Cascade dans le parc national de Þingvellir",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Öxarárfoss est une cascade de 20 mètres de hauteur dans le parc national de Þingvellir. Elle se trouve dans la faille d'Almannagjá. Le site est accessible toute l'année. Conseil : combinez avec la visite du parc. Accès : route 36, 1h de Reykjavik."
+                    },
+                    {
+                        id: 63,
+                        titre: "Cascade de Gljúfrabúi",
+                        description: "Cascade cachée dans une grotte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Gljúfrabúi est une cascade de 40 mètres cachée dans une grotte. Elle se trouve près de Seljalandsfoss. Le site est accessible toute l'année. Conseil : portez des vêtements imperméables. Accès : route 1, 2h de Reykjavik."
+                    },
+                    {
+                        id: 64,
+                        titre: "Cascade de Hjálparfoss",
+                        description: "Cascade en forme de Y",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hjálparfoss est une cascade de 20 mètres de hauteur en forme de Y. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 65,
+                        titre: "Cascade de Gjáin",
+                        description: "Vallée cachée avec cascades",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Gjáin est une vallée cachée avec plusieurs petites cascades. Elle se trouve près de Þingvellir. Le site est accessible en été. Conseil : prévoyez 2-3 heures pour explorer. Accès : route 36, 1h de Reykjavik."
+                    },
+                    {
+                        id: 66,
+                        titre: "Cascade de Þjófafoss",
+                        description: "Cascade des voleurs",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Þjófafoss est une cascade de 20 mètres de hauteur. Son nom signifie 'cascade des voleurs'. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 67,
+                        titre: "Cascade de Búðafoss",
+                        description: "Cascade dans la vallée de Þjórsárdalur",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Búðafoss est une cascade de 15 mètres de hauteur dans la vallée de Þjórsárdalur. Elle se trouve près de Háifoss. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 68,
+                        titre: "Cascade de Tröllafoss",
+                        description: "Cascade des trolls",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Tröllafoss est une cascade de 20 mètres de hauteur. Son nom signifie 'cascade des trolls'. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 69,
+                        titre: "Cascade de Stjórnarfoss",
+                        description: "Cascade dans la vallée de Þjórsárdalur",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Stjórnarfoss est une cascade de 15 mètres de hauteur dans la vallée de Þjórsárdalur. Elle se trouve près de Háifoss. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 70,
+                        titre: "Cascade de Granni",
+                        description: "Cascade voisine de Háifoss",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Granni est une cascade de 101 mètres de hauteur qui se trouve à côté de Háifoss. Son nom signifie 'voisin'. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 71,
+                        titre: "Cascade de Hraunfossar",
+                        description: "Cascades de lave",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hraunfossar est une série de cascades qui émergent de la lave. L'eau provient du glacier Langjökull. Le site est accessible toute l'année. Conseil : combinez avec Barnafoss. Accès : route 518, 2h de Reykjavik."
+                    },
+                    {
+                        id: 72,
+                        titre: "Cascade de Barnafoss",
+                        description: "Cascade de lave avec pont naturel",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Barnafoss est une cascade qui traverse un pont naturel de lave. Selon la légende, deux enfants se sont noyés ici. Le site est accessible toute l'année. Conseil : visitez en même temps que Hraunfossar. Accès : route 518, 2h de Reykjavik."
+                    },
+                    {
+                        id: 73,
+                        titre: "Cascade de Dynjandi",
+                        description: "Cascade en escalier dans les fjords",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Dynjandi est une cascade de 100 mètres dans les fjords de l'Ouest. Elle se déverse en plusieurs étapes. Le site est accessible en été. Conseil : prévoyez une journée pour les fjords. Accès : route 60, 5h de Reykjavik."
+                    },
+                    {
+                        id: 74,
+                        titre: "Cascade de Aldeyjarfoss",
+                        description: "Cascade entourée de colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Aldeyjarfoss est une cascade de 20 mètres entourée de colonnes de basalte. Elle se trouve dans le nord de l'Islande. Le site est accessible en été. Conseil : nécessite un véhicule tout-terrain. Accès : route 842, 6h de Reykjavik."
+                    },
+                    {
+                        id: 75,
+                        titre: "Cascade de Goðafoss",
+                        description: "Cascade des dieux",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Goðafoss est une cascade de 12 mètres de hauteur et 30 mètres de largeur. Son nom signifie 'cascade des dieux'. Le site est accessible toute l'année. Conseil : visitez en fin de journée pour la lumière. Accès : route 1, 5h de Reykjavik."
+                    },
+                    {
+                        id: 76,
+                        titre: "Cascade de Selfoss",
+                        description: "Cascade en escalier",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Selfoss est une cascade de 11 mètres de hauteur qui se déverse en plusieurs étapes. Elle se trouve près de Dettifoss. Le site est accessible en été. Conseil : combinez avec Dettifoss. Accès : route 864, 6h de Reykjavik."
+                    },
+                    {
+                        id: 77,
+                        titre: "Cascade de Hengifoss",
+                        description: "Cascade avec bandes rouges",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hengifoss est une cascade de 128 mètres de hauteur avec des bandes rouges dans la roche. Le sentier pour y accéder fait 2,5 km. Conseil : prévoyez 2-3 heures pour l'aller-retour. Accès : route 931, 7h de Reykjavik."
+                    },
+                    {
+                        id: 78,
+                        titre: "Cascade de Litlanesfoss",
+                        description: "Cascade avec colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Litlanesfoss est une cascade de 30 mètres entourée de colonnes de basalte. Elle se trouve près de Hengifoss. Le site est accessible en été. Conseil : combinez avec Hengifoss. Accès : route 931, 7h de Reykjavik."
+                    },
+                    {
+                        id: 79,
+                        titre: "Cascade de Kirkjufellsfoss",
+                        description: "Cascade avec montagne en arrière-plan",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Kirkjufellsfoss est une petite cascade avec la montagne Kirkjufell en arrière-plan. C'est un spot photo très populaire. Conseil : visitez au coucher du soleil. Accès : route 54, 3h de Reykjavik."
+                    },
+                    {
+                        id: 80,
+                        titre: "Cascade de Bruarfoss",
+                        description: "Cascade bleue cachée",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Bruarfoss est une cascade bleue cachée dans la vallée de Laugarvatn. Le sentier pour y accéder fait 3,5 km. Conseil : prévoyez 2-3 heures pour l'aller-retour. Accès : route 37, 1h30 de Reykjavik."
+                    },
+                    {
+                        id: 81,
+                        titre: "Cascade de Faxi",
+                        description: "Cascade large et peu profonde",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Faxi est une cascade de 7 mètres de hauteur et 80 mètres de largeur. Elle se trouve sur la rivière Tungufljót. Le site est accessible toute l'année. Conseil : combinez avec Gullfoss. Accès : route 35, 1h30 de Reykjavik."
+                    },
+                    {
+                        id: 82,
+                        titre: "Cascade de Öxarárfoss",
+                        description: "Cascade dans le parc national de Þingvellir",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Öxarárfoss est une cascade de 20 mètres de hauteur dans le parc national de Þingvellir. Elle se trouve dans la faille d'Almannagjá. Le site est accessible toute l'année. Conseil : combinez avec la visite du parc. Accès : route 36, 1h de Reykjavik."
+                    },
+                    {
+                        id: 83,
+                        titre: "Cascade de Gljúfrabúi",
+                        description: "Cascade cachée dans une grotte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Gljúfrabúi est une cascade de 40 mètres cachée dans une grotte. Elle se trouve près de Seljalandsfoss. Le site est accessible toute l'année. Conseil : portez des vêtements imperméables. Accès : route 1, 2h de Reykjavik."
+                    },
+                    {
+                        id: 84,
+                        titre: "Cascade de Hjálparfoss",
+                        description: "Cascade en forme de Y",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hjálparfoss est une cascade de 20 mètres de hauteur en forme de Y. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 85,
+                        titre: "Cascade de Gjáin",
+                        description: "Vallée cachée avec cascades",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Gjáin est une vallée cachée avec plusieurs petites cascades. Elle se trouve près de Þingvellir. Le site est accessible en été. Conseil : prévoyez 2-3 heures pour explorer. Accès : route 36, 1h de Reykjavik."
+                    },
+                    {
+                        id: 86,
+                        titre: "Cascade de Þjófafoss",
+                        description: "Cascade des voleurs",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Þjófafoss est une cascade de 20 mètres de hauteur. Son nom signifie 'cascade des voleurs'. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 87,
+                        titre: "Cascade de Búðafoss",
+                        description: "Cascade dans la vallée de Þjórsárdalur",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Búðafoss est une cascade de 15 mètres de hauteur dans la vallée de Þjórsárdalur. Elle se trouve près de Háifoss. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 88,
+                        titre: "Cascade de Tröllafoss",
+                        description: "Cascade des trolls",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Tröllafoss est une cascade de 20 mètres de hauteur. Son nom signifie 'cascade des trolls'. Elle se trouve dans la vallée de Þjórsárdalur. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 89,
+                        titre: "Cascade de Stjórnarfoss",
+                        description: "Cascade dans la vallée de Þjórsárdalur",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Stjórnarfoss est une cascade de 15 mètres de hauteur dans la vallée de Þjórsárdalur. Elle se trouve près de Háifoss. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 90,
+                        titre: "Cascade de Granni",
+                        description: "Cascade voisine de Háifoss",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Granni est une cascade de 101 mètres de hauteur qui se trouve à côté de Háifoss. Son nom signifie 'voisin'. Le site est accessible en été. Conseil : combinez avec Háifoss. Accès : route 32, 2h de Reykjavik."
+                    },
+                    {
+                        id: 91,
+                        titre: "Cascade de Hraunfossar",
+                        description: "Cascades de lave",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hraunfossar est une série de cascades qui émergent de la lave. L'eau provient du glacier Langjökull. Le site est accessible toute l'année. Conseil : combinez avec Barnafoss. Accès : route 518, 2h de Reykjavik."
+                    },
+                    {
+                        id: 92,
+                        titre: "Cascade de Barnafoss",
+                        description: "Cascade de lave avec pont naturel",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Barnafoss est une cascade qui traverse un pont naturel de lave. Selon la légende, deux enfants se sont noyés ici. Le site est accessible toute l'année. Conseil : visitez en même temps que Hraunfossar. Accès : route 518, 2h de Reykjavik."
+                    },
+                    {
+                        id: 93,
+                        titre: "Cascade de Dynjandi",
+                        description: "Cascade en escalier dans les fjords",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Dynjandi est une cascade de 100 mètres dans les fjords de l'Ouest. Elle se déverse en plusieurs étapes. Le site est accessible en été. Conseil : prévoyez une journée pour les fjords. Accès : route 60, 5h de Reykjavik."
+                    },
+                    {
+                        id: 94,
+                        titre: "Cascade de Aldeyjarfoss",
+                        description: "Cascade entourée de colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Aldeyjarfoss est une cascade de 20 mètres entourée de colonnes de basalte. Elle se trouve dans le nord de l'Islande. Le site est accessible en été. Conseil : nécessite un véhicule tout-terrain. Accès : route 842, 6h de Reykjavik."
+                    },
+                    {
+                        id: 95,
+                        titre: "Cascade de Goðafoss",
+                        description: "Cascade des dieux",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Goðafoss est une cascade de 12 mètres de hauteur et 30 mètres de largeur. Son nom signifie 'cascade des dieux'. Le site est accessible toute l'année. Conseil : visitez en fin de journée pour la lumière. Accès : route 1, 5h de Reykjavik."
+                    },
+                    {
+                        id: 96,
+                        titre: "Cascade de Selfoss",
+                        description: "Cascade en escalier",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Selfoss est une cascade de 11 mètres de hauteur qui se déverse en plusieurs étapes. Elle se trouve près de Dettifoss. Le site est accessible en été. Conseil : combinez avec Dettifoss. Accès : route 864, 6h de Reykjavik."
+                    },
+                    {
+                        id: 97,
+                        titre: "Cascade de Hengifoss",
+                        description: "Cascade avec bandes rouges",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Hengifoss est une cascade de 128 mètres de hauteur avec des bandes rouges dans la roche. Le sentier pour y accéder fait 2,5 km. Conseil : prévoyez 2-3 heures pour l'aller-retour. Accès : route 931, 7h de Reykjavik."
+                    },
+                    {
+                        id: 98,
+                        titre: "Cascade de Litlanesfoss",
+                        description: "Cascade avec colonnes de basalte",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Litlanesfoss est une cascade de 30 mètres entourée de colonnes de basalte. Elle se trouve près de Hengifoss. Le site est accessible en été. Conseil : combinez avec Hengifoss. Accès : route 931, 7h de Reykjavik."
+                    },
+                    {
+                        id: 99,
+                        titre: "Cascade de Kirkjufellsfoss",
+                        description: "Cascade avec montagne en arrière-plan",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Kirkjufellsfoss est une petite cascade avec la montagne Kirkjufell en arrière-plan. C'est un spot photo très populaire. Conseil : visitez au coucher du soleil. Accès : route 54, 3h de Reykjavik."
+                    },
+                    {
+                        id: 100,
+                        titre: "Cascade de Bruarfoss",
+                        description: "Cascade bleue cachée",
+                        image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                        contenu: "Bruarfoss est une cascade bleue cachée dans la vallée de Laugarvatn. Le sentier pour y accéder fait 3,5 km. Conseil : prévoyez 2-3 heures pour l'aller-retour. Accès : route 37, 1h30 de Reykjavik."
+                    }
+                ]
+            },
+            {
+                id: 'photographie',
+                nom: '📸 Photographie - Techniques et Conseils',
+                description: 'Maîtrisez l\'art de la photographie',
+                couleur: '#FF6B6B',
+                spots: [
+                    {
+                        id: 1,
+                        titre: "La Règle des Tiers",
+                        description: "Technique de composition fondamentale",
+                        image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&h=600&fit=crop",
+                        contenu: "La règle des tiers est une technique de composition photographique qui divise l'image en neuf parties égales (grille 3x3). Placez les éléments importants sur les lignes ou aux intersections pour créer une composition équilibrée. Cette règle s'applique à tous les types de photos : paysages, portraits, architecture. Conseil : activez la grille dans votre appareil photo pour vous aider à composer."
+                    },
+                    {
+                        id: 2,
+                        titre: "L'Exposition Triangle",
+                        description: "ISO, Ouverture, Vitesse d'obturation",
+                        image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=800&h=600&fit=crop",
+                        contenu: "L'exposition est contrôlée par trois paramètres : l'ISO (sensibilité), l'ouverture (profondeur de champ) et la vitesse d'obturation (mouvement). En mode manuel, vous devez équilibrer ces trois éléments. ISO bas = moins de bruit, Ouverture grande = flou d'arrière-plan, Vitesse rapide = figer le mouvement. Apprenez à les maîtriser pour des photos créatives."
+                    }
+                ]
+            },
+            {
+                id: 'astronomie',
+                nom: '🌌 Astronomie - Découvrez l\'Univers',
+                description: 'Explorez les mystères du cosmos',
+                couleur: '#9B59B6',
+                spots: [
+                    {
+                        id: 1,
+                        titre: "Les Planètes du Système Solaire",
+                        description: "Mercure, Vénus, Terre, Mars, Jupiter, Saturne, Uranus, Neptune",
+                        image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=600&fit=crop",
+                        contenu: "Notre système solaire compte 8 planètes principales. Mercure et Vénus sont les plus proches du Soleil, suivies de la Terre et Mars (planètes telluriques). Jupiter et Saturne sont des géantes gazeuses, Uranus et Neptune des géantes de glace. Chaque planète a ses caractéristiques uniques : Vénus est la plus chaude, Jupiter la plus massive, Saturne a les plus beaux anneaux."
+                    },
+                    {
+                        id: 2,
+                        titre: "Les Constellations",
+                        description: "Groupes d'étoiles formant des figures",
+                        image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&h=600&fit=crop",
+                        contenu: "Les constellations sont des groupes d'étoiles qui, vus de la Terre, semblent former des figures. La Grande Ourse et la Petite Ourse sont parmi les plus connues dans l'hémisphère nord. Orion, avec sa ceinture caractéristique, est visible en hiver. Les constellations ont aidé les navigateurs à s'orienter pendant des millénaires. Aujourd'hui, elles servent encore de repères pour les astronomes amateurs."
+                    }
+                ]
+            }
+        ];
+
+        let thematiqueActuelle = null;
+
+        // Afficher les thématiques
+        function displayThematiques() {
+            const container = document.getElementById('thematiquesContainer');
+            container.innerHTML = '';
+
+            thematiques.forEach((thematique, index) => {
+                const card = document.createElement('div');
+                card.className = 'thematique-card';
+                card.style.borderLeft = `5px solid ${thematique.couleur}`;
+                card.onclick = () => showThematique(thematique);
+                card.innerHTML = `
+                    <h3>${thematique.nom}</h3>
+                    <p>${thematique.description}</p>
+                    <div class="spot-count">${thematique.spots.length} cartes</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Afficher une thématique
+        function showThematique(thematique) {
+            thematiqueActuelle = thematique;
+            
+            console.log('showThematique appelé avec:', thematique.nom);
+            console.log('Nombre de spots dans la thématique:', thematique.spots.length);
+            
+            // Mettre à jour le header
+            const header = document.querySelector('.header');
+            header.innerHTML = `
+                <h1>${thematique.nom}</h1>
+                <p>${thematique.description}</p>
+                <button onclick="showHomePage()" class="back-btn">← Retour</button>
+            `;
+            
+            // Afficher la section de recherche
+            const searchSection = document.getElementById('searchSection');
+            searchSection.style.display = 'flex';
+            const searchInput = document.getElementById('searchInput');
+            searchInput.placeholder = `Rechercher dans ${thematique.nom}...`;
+            
+            // Afficher les cartes
+            const cardsSection = document.getElementById('cardsContainer');
+            cardsSection.style.display = 'grid';
+            
+            // Masquer les thématiques
+            const thematiquesSection = document.getElementById('thematiquesContainer');
+            thematiquesSection.style.display = 'none';
+            
+            displayCards(thematique.spots);
+        }
+
+        // Afficher la page d'accueil
+        function showHomePage() {
+            const header = document.querySelector('.header');
+            header.innerHTML = `
+                <h1>🎯 Thématiques - Cartes Explicatives</h1>
+                <p>Choisissez une thématique pour découvrir ses cartes</p>
+                <button onclick="showAdminPanel()" class="admin-btn">⚙️ Admin</button>
+            `;
+            
+            // Supprimer le conteneur admin s'il existe
+            const adminContainer = document.getElementById('adminContainer');
+            if (adminContainer) {
+                adminContainer.remove();
+            }
+            
+            // Masquer la section de recherche et les cartes
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('cardsContainer').style.display = 'none';
+            
+            // Afficher la section des thématiques
+            document.getElementById('thematiquesContainer').style.display = 'grid';
+            
+            displayThematiques();
+        }
+
+        // Afficher les cartes
+        function displayCards(cardsToShow) {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+
+            console.log(`Affichage de ${cardsToShow.length} cartes`);
+
+            cardsToShow.forEach((spot, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => showModal(spot);
+                
+                let imageHtml = '';
+                if (spot.image) {
+                    imageHtml = `<img src="${spot.image}" alt="${spot.titre}" onerror="this.style.display='none'">`;
+                }
+                
+                card.innerHTML = `
+                    ${imageHtml}
+                    <h3>${spot.titre}</h3>
+                    <p>${spot.description}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Rechercher les spots
+        function searchSpots() {
+            if (!thematiqueActuelle) return;
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = thematiqueActuelle.spots.filter(spot => 
+                spot.titre.toLowerCase().includes(query) ||
+                spot.description.toLowerCase().includes(query) ||
+                spot.contenu.toLowerCase().includes(query)
+            );
+            displayCards(filtered);
+        }
+
+        // Afficher la modal
+        function showModal(spot) {
+            document.getElementById('modalTitle').textContent = spot.titre;
+            
+            let imageHtml = '';
+            if (spot.image) {
+                imageHtml = `<img src="${spot.image}" alt="${spot.titre}" onerror="this.style.display='none'">`;
+            }
+            
+            document.getElementById('modalContent').innerHTML = `
+                ${imageHtml}
+                <p style="color: #666; margin-bottom: 15px;">${spot.description}</p>
+                <p style="line-height: 1.8;">${spot.contenu}</p>
+            `;
+            document.getElementById('modal').style.display = 'block';
+        }
+
+        // Fermer la modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Fermer la modal en cliquant à l'extérieur
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+
+
+        // Interface d'administration
+        function showAdminPanel() {
+            const header = document.querySelector('.header');
+            header.innerHTML = `
+                <h1>🔧 Administration</h1>
+                <p>Gérez vos thématiques et cartes</p>
+                <button onclick="showHomePage()" class="back-btn">← Retour</button>
+            `;
+            
+            // Masquer les autres sections
+            document.getElementById('thematiquesContainer').style.display = 'none';
+            document.getElementById('searchSection').style.display = 'none';
+            document.getElementById('cardsContainer').style.display = 'none';
+            
+            // Créer l'interface admin
+            const adminContainer = document.createElement('div');
+            adminContainer.id = 'adminContainer';
+            adminContainer.innerHTML = `
+                <div class="admin-panel">
+                    <div class="admin-tabs">
+                        <button onclick="showAdminTab('thematiques')" class="tab-btn active">Thématiques</button>
+                        <button onclick="showAdminTab('cartes')" class="tab-btn">Cartes</button>
+                    </div>
+                    
+                    <div id="thematiques-tab" class="tab-content">
+                        <h3 style="margin: 0 0 15px 0; font-size: 1.3rem;">Gérer les thématiques</h3>
+                        <button onclick="showAddThematiqueForm()" class="add-btn">+ Ajouter une thématique</button>
+                        <div id="thematiquesList"></div>
+                    </div>
+                    
+                    <div id="cartes-tab" class="tab-content" style="display: none;">
+                        <h3 style="margin: 0 0 15px 0; font-size: 1.3rem;">Gérer les cartes</h3>
+                        <button onclick="showAddCarteForm()" class="add-btn">+ Ajouter une carte</button>
+                        <div id="cartesList"></div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(adminContainer);
+            displayAdminThematiques();
+        }
+
+        // Fonctions d'administration
+        function showAdminTab(tabName) {
+            // Masquer tous les onglets
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Afficher l'onglet sélectionné
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            event.target.classList.add('active');
+
+            // Charger le contenu approprié
+            if (tabName === 'thematiques') {
+                displayAdminThematiques();
+            } else if (tabName === 'cartes') {
+                displayAdminCartes();
+            }
+        }
+
+        function displayAdminThematiques() {
+            const container = document.getElementById('thematiquesList');
+            container.innerHTML = '';
+
+            thematiques.forEach((thematique, index) => {
+                const item = document.createElement('div');
+                item.className = 'item-card';
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div style="flex: 1;">
+                            <h4>${thematique.nom}</h4>
+                            <p>${thematique.description}</p>
+                            <p style="color: #4A90E2; font-size: 0.8rem;"><strong>${thematique.spots.length} cartes</strong></p>
+                        </div>
+                        <div class="item-actions" style="margin-top: 0;">
+                            <button onclick="editThematique(${index})" class="edit-btn" title="Modifier">✏️</button>
+                            <button onclick="deleteThematique(${index})" class="delete-btn" title="Supprimer">🗑️</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function displayAdminCartes() {
+            const container = document.getElementById('cartesList');
+            container.innerHTML = '';
+
+            thematiques.forEach((thematique, thematiqueIndex) => {
+                if (thematique.spots.length > 0) {
+                    // En-tête de thématique
+                    const header = document.createElement('div');
+                    header.style.cssText = 'background: #f0f0f0; padding: 10px; margin: 15px 0 10px 0; border-radius: 5px; font-weight: bold; color: #4A90E2;';
+                    header.textContent = `${thematique.nom} (${thematique.spots.length} cartes)`;
+                    container.appendChild(header);
+
+                    thematique.spots.forEach((carte, carteIndex) => {
+                        const item = document.createElement('div');
+                        item.className = 'item-card';
+                        item.style.marginBottom = '8px';
+                        item.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <div style="flex: 1;">
+                                    <h4 style="margin: 0 0 5px 0; font-size: 1rem;">${carte.titre}</h4>
+                                    <p style="margin: 0; color: #666; font-size: 0.85rem;">${carte.description}</p>
+                                </div>
+                                <div class="item-actions" style="margin-top: 0;">
+                                    <button onclick="editCarte(${thematiqueIndex}, ${carteIndex})" class="edit-btn" title="Modifier">✏️</button>
+                                    <button onclick="deleteCarte(${thematiqueIndex}, ${carteIndex})" class="delete-btn" title="Supprimer">🗑️</button>
+                                </div>
+                            </div>
+                        `;
+                        container.appendChild(item);
+                    });
+                }
+            });
+        }
+
+        function showAddThematiqueForm() {
+            const container = document.getElementById('thematiquesList');
+            container.innerHTML = `
+                <div class="item-card" style="background: #e8f4fd; border-left-color: #28a745;">
+                    <h4 style="color: #28a745;">➕ Ajouter une thématique</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Emoji:</label>
+                            <select id="newThematiqueEmoji">
+                                <option value="">Aucun emoji</option>
+                                <option value="🏔️">🏔️ Montagne</option>
+                                <option value="🌊">🌊 Océan</option>
+                                <option value="🌅">🌅 Coucher de soleil</option>
+                                <option value="🌄">🌄 Lever de soleil</option>
+                                <option value="🌋">🌋 Volcan</option>
+                                <option value="❄️">❄️ Neige</option>
+                                <option value="🌈">🌈 Arc-en-ciel</option>
+                                <option value="🌙">🌙 Lune</option>
+                                <option value="⭐">⭐ Étoile</option>
+                                <option value="🌌">🌌 Galaxie</option>
+                                <option value="📸">📸 Photo</option>
+                                <option value="🎨">🎨 Art</option>
+                                <option value="🎭">🎭 Théâtre</option>
+                                <option value="🎵">🎵 Musique</option>
+                                <option value="🎮">🎮 Jeu</option>
+                                <option value="🏃">🏃 Sport</option>
+                                <option value="🚗">🚗 Voiture</option>
+                                <option value="✈️">✈️ Avion</option>
+                                <option value="🚢">🚢 Bateau</option>
+                                <option value="🏰">🏰 Château</option>
+                                <option value="🏛️">🏛️ Monument</option>
+                                <option value="🌳">🌳 Arbre</option>
+                                <option value="🌸">🌸 Fleur</option>
+                                <option value="🍕">🍕 Nourriture</option>
+                                <option value="☕">☕ Café</option>
+                                <option value="🍷">🍷 Vin</option>
+                                <option value="🎪">🎪 Cirque</option>
+                                <option value="🎯">🎯 Cible</option>
+                                <option value="💡">💡 Idée</option>
+                                <option value="🔧">🔧 Outil</option>
+                                <option value="📚">📚 Livre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Couleur:</label>
+                            <input type="color" id="newThematiqueCouleur" value="#4A90E2">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nom de la thématique:</label>
+                        <input type="text" id="newThematiqueNom" placeholder="Ex: Voyage - Destinations">
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <textarea id="newThematiqueDescription" placeholder="Description de la thématique"></textarea>
+                    </div>
+                    <div class="item-actions">
+                        <button onclick="addThematique()" class="edit-btn" style="background: #28a745;">✅ Ajouter</button>
+                        <button onclick="displayAdminThematiques()" class="delete-btn">❌ Annuler</button>
+                    </div>
+                </div>
+            ` + container.innerHTML;
+        }
+
+        function addThematique() {
+            const emoji = document.getElementById('newThematiqueEmoji').value;
+            const nom = document.getElementById('newThematiqueNom').value;
+            const description = document.getElementById('newThematiqueDescription').value;
+            const couleur = document.getElementById('newThematiqueCouleur').value;
+
+            if (!nom || !description) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            const newThematique = {
+                id: 'thematique_' + Date.now(),
+                nom: emoji ? emoji + ' ' + nom : nom,
+                description: description,
+                couleur: couleur,
+                spots: []
+            };
+
+            thematiques.push(newThematique);
+            saveToLocalStorage(); // Sauvegarde automatique
+            displayAdminThematiques();
+            alert('✅ Thématique ajoutée et sauvegardée !');
+        }
+
+        function editThematique(index) {
+            const thematique = thematiques[index];
+            const container = document.getElementById('thematiquesList');
+            
+            container.innerHTML = `
+                <div class="item-card">
+                    <h4>Modifier la thématique</h4>
+                    <div class="form-group">
+                        <label>Emoji:</label>
+                        <select id="editThematiqueEmoji">
+                            <option value="">Aucun emoji</option>
+                            <option value="🏔️" ${thematique.nom.includes('🏔️') ? 'selected' : ''}>🏔️ Montagne</option>
+                            <option value="🌊" ${thematique.nom.includes('🌊') ? 'selected' : ''}>🌊 Océan</option>
+                            <option value="🌅" ${thematique.nom.includes('🌅') ? 'selected' : ''}>🌅 Coucher de soleil</option>
+                            <option value="🌄" ${thematique.nom.includes('🌄') ? 'selected' : ''}>🌄 Lever de soleil</option>
+                            <option value="🌋" ${thematique.nom.includes('🌋') ? 'selected' : ''}>🌋 Volcan</option>
+                            <option value="❄️" ${thematique.nom.includes('❄️') ? 'selected' : ''}>❄️ Neige</option>
+                            <option value="🌈" ${thematique.nom.includes('🌈') ? 'selected' : ''}>🌈 Arc-en-ciel</option>
+                            <option value="🌙" ${thematique.nom.includes('🌙') ? 'selected' : ''}>🌙 Lune</option>
+                            <option value="⭐" ${thematique.nom.includes('⭐') ? 'selected' : ''}>⭐ Étoile</option>
+                            <option value="🌌" ${thematique.nom.includes('🌌') ? 'selected' : ''}>🌌 Galaxie</option>
+                            <option value="📸" ${thematique.nom.includes('📸') ? 'selected' : ''}>📸 Photo</option>
+                            <option value="🎨" ${thematique.nom.includes('🎨') ? 'selected' : ''}>🎨 Art</option>
+                            <option value="🎭" ${thematique.nom.includes('🎭') ? 'selected' : ''}>🎭 Théâtre</option>
+                            <option value="🎵" ${thematique.nom.includes('🎵') ? 'selected' : ''}>🎵 Musique</option>
+                            <option value="🎮" ${thematique.nom.includes('🎮') ? 'selected' : ''}>🎮 Jeu</option>
+                            <option value="🏃" ${thematique.nom.includes('🏃') ? 'selected' : ''}>🏃 Sport</option>
+                            <option value="🚗" ${thematique.nom.includes('🚗') ? 'selected' : ''}>🚗 Voiture</option>
+                            <option value="✈️" ${thematique.nom.includes('✈️') ? 'selected' : ''}>✈️ Avion</option>
+                            <option value="🚢" ${thematique.nom.includes('🚢') ? 'selected' : ''}>🚢 Bateau</option>
+                            <option value="🏰" ${thematique.nom.includes('🏰') ? 'selected' : ''}>🏰 Château</option>
+                            <option value="🏛️" ${thematique.nom.includes('🏛️') ? 'selected' : ''}>🏛️ Monument</option>
+                            <option value="🌳" ${thematique.nom.includes('🌳') ? 'selected' : ''}>🌳 Arbre</option>
+                            <option value="🌸" ${thematique.nom.includes('🌸') ? 'selected' : ''}>🌸 Fleur</option>
+                            <option value="🍕" ${thematique.nom.includes('🍕') ? 'selected' : ''}>🍕 Nourriture</option>
+                            <option value="☕" ${thematique.nom.includes('☕') ? 'selected' : ''}>☕ Café</option>
+                            <option value="🍷" ${thematique.nom.includes('🍷') ? 'selected' : ''}>🍷 Vin</option>
+                            <option value="🎪" ${thematique.nom.includes('🎪') ? 'selected' : ''}>🎪 Cirque</option>
+                            <option value="🎯" ${thematique.nom.includes('🎯') ? 'selected' : ''}>🎯 Cible</option>
+                            <option value="💡" ${thematique.nom.includes('💡') ? 'selected' : ''}>💡 Idée</option>
+                            <option value="🔧" ${thematique.nom.includes('🔧') ? 'selected' : ''}>🔧 Outil</option>
+                            <option value="📚" ${thematique.nom.includes('📚') ? 'selected' : ''}>📚 Livre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Nom:</label>
+                        <input type="text" id="editThematiqueNom" value="${thematique.nom.replace(/^[^\s]*\s/, '')}">
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <textarea id="editThematiqueDescription">${thematique.description}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur:</label>
+                        <input type="color" id="editThematiqueCouleur" value="${thematique.couleur}">
+                    </div>
+                    <div class="item-actions">
+                        <button onclick="saveThematique(${index})" class="edit-btn">Sauvegarder</button>
+                        <button onclick="displayAdminThematiques()" class="delete-btn">Annuler</button>
+                    </div>
+                </div>
+            ` + container.innerHTML;
+        }
+
+        function saveThematique(index) {
+            const emoji = document.getElementById('editThematiqueEmoji').value;
+            const nom = document.getElementById('editThematiqueNom').value;
+            const description = document.getElementById('editThematiqueDescription').value;
+            const couleur = document.getElementById('editThematiqueCouleur').value;
+
+            if (!nom || !description) {
+                alert('Veuillez remplir tous les champs');
+                return;
+            }
+
+            thematiques[index].nom = emoji ? emoji + ' ' + nom : nom;
+            thematiques[index].description = description;
+            thematiques[index].couleur = couleur;
+
+            saveToLocalStorage(); // Sauvegarde automatique
+            displayAdminThematiques();
+            alert('✅ Thématique modifiée et sauvegardée !');
+        }
+
+        function deleteThematique(index) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette thématique ?')) {
+                thematiques.splice(index, 1);
+                saveToLocalStorage(); // Sauvegarde automatique
+                displayAdminThematiques();
+                alert('✅ Thématique supprimée et sauvegardée !');
+            }
+        }
+
+        function showAddCarteForm() {
+            const container = document.getElementById('cartesList');
+            container.innerHTML = `
+                <div class="item-card" style="background: #e8f4fd; border-left-color: #28a745;">
+                    <h4 style="color: #28a745;">➕ Ajouter une carte</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Thématique:</label>
+                            <select id="newCarteThematique">
+                                ${thematiques.map((t, i) => `<option value="${i}">${t.nom}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>URL de l'image (optionnel):</label>
+                            <input type="url" id="newCarteImage" placeholder="https://exemple.com/image.jpg">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Titre de la carte:</label>
+                        <input type="text" id="newCarteTitre" placeholder="Titre de la carte">
+                    </div>
+                    <div class="form-group">
+                        <label>Description courte:</label>
+                        <input type="text" id="newCarteDescription" placeholder="Description courte">
+                    </div>
+                    <div class="form-group">
+                        <label>Contenu détaillé:</label>
+                        <textarea id="newCarteContenu" placeholder="Contenu détaillé de la carte"></textarea>
+                    </div>
+                    <div class="item-actions">
+                        <button onclick="addCarte()" class="edit-btn" style="background: #28a745;">✅ Ajouter</button>
+                        <button onclick="displayAdminCartes()" class="delete-btn">❌ Annuler</button>
+                    </div>
+                </div>
+            ` + container.innerHTML;
+        }
+
+        function addCarte() {
+            const thematiqueIndex = parseInt(document.getElementById('newCarteThematique').value);
+            const titre = document.getElementById('newCarteTitre').value;
+            const description = document.getElementById('newCarteDescription').value;
+            const image = document.getElementById('newCarteImage').value;
+            const contenu = document.getElementById('newCarteContenu').value;
+
+            if (!titre || !description || !contenu) {
+                alert('Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+
+            const newCarte = {
+                id: Date.now(),
+                titre: titre,
+                description: description,
+                contenu: contenu
+            };
+
+            if (image) {
+                newCarte.image = image;
+            }
+
+            thematiques[thematiqueIndex].spots.push(newCarte);
+            saveToLocalStorage(); // Sauvegarde automatique
+            displayAdminCartes();
+            alert('✅ Carte ajoutée et sauvegardée !');
+        }
+
+        function editCarte(thematiqueIndex, carteIndex) {
+            const carte = thematiques[thematiqueIndex].spots[carteIndex];
+            const container = document.getElementById('cartesList');
+            
+            container.innerHTML = `
+                <div class="item-card">
+                    <h4>Modifier la carte</h4>
+
+                    <div class="form-group">
+                        <label>Titre:</label>
+                        <input type="text" id="editCarteTitre" value="${carte.titre}">
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <input type="text" id="editCarteDescription" value="${carte.description}">
+                    </div>
+                    <div class="form-group">
+                        <label>URL de l'image (optionnel):</label>
+                        <input type="url" id="editCarteImage" value="${carte.image || ''}" placeholder="https://exemple.com/image.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>Contenu:</label>
+                        <textarea id="editCarteContenu">${carte.contenu}</textarea>
+                    </div>
+                    <div class="item-actions">
+                        <button onclick="saveCarte(${thematiqueIndex}, ${carteIndex})" class="edit-btn">Sauvegarder</button>
+                        <button onclick="displayAdminCartes()" class="delete-btn">Annuler</button>
+                    </div>
+                </div>
+            ` + container.innerHTML;
+        }
+
+        function saveCarte(thematiqueIndex, carteIndex) {
+            const titre = document.getElementById('editCarteTitre').value;
+            const description = document.getElementById('editCarteDescription').value;
+            const image = document.getElementById('editCarteImage').value;
+            const contenu = document.getElementById('editCarteContenu').value;
+
+            if (!titre || !description || !contenu) {
+                alert('Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+
+            thematiques[thematiqueIndex].spots[carteIndex].titre = titre;
+            thematiques[thematiqueIndex].spots[carteIndex].description = description;
+            thematiques[thematiqueIndex].spots[carteIndex].contenu = contenu;
+            
+            if (image) {
+                thematiques[thematiqueIndex].spots[carteIndex].image = image;
+            } else {
+                delete thematiques[thematiqueIndex].spots[carteIndex].image;
+            }
+
+            saveToLocalStorage(); // Sauvegarde automatique
+            displayAdminCartes();
+            alert('✅ Carte modifiée et sauvegardée !');
+        }
+
+        function deleteCarte(thematiqueIndex, carteIndex) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette carte ?')) {
+                thematiques[thematiqueIndex].spots.splice(carteIndex, 1);
+                saveToLocalStorage(); // Sauvegarde automatique
+                displayAdminCartes();
+                alert('✅ Carte supprimée et sauvegardée !');
+            }
+        }
+
+        // Fonctions de sauvegarde
+        function saveToLocalStorage() {
+            localStorage.setItem('thematiquesData', JSON.stringify(thematiques));
+            console.log('✅ Données sauvegardées dans localStorage');
+            
+            // Indicateur visuel temporaire
+            const header = document.querySelector('.header');
+            const originalText = header.querySelector('p').textContent;
+            header.querySelector('p').textContent = '💾 Sauvegarde automatique...';
+            
+            setTimeout(() => {
+                header.querySelector('p').textContent = originalText;
+            }, 1000);
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('thematiquesData');
+            if (saved) {
+                thematiques = JSON.parse(saved);
+                console.log('Données chargées depuis localStorage');
+                return true;
+            }
+            return false;
+        }
+
+        // Charger les données au démarrage
+        // Vider le localStorage pour forcer le rechargement des 100 spots
+        localStorage.removeItem('thematiquesData');
+        
+        if (!loadFromLocalStorage()) {
+            // Si pas de données sauvegardées, utiliser les données par défaut
+            saveToLocalStorage();
+        }
+
+        // Afficher les thématiques au chargement
+        displayThematiques();
+    </script>
+</body>
+</html> 
